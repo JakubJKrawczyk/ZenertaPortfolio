@@ -1,33 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import * as THREE from 'three'; 
+import React, {useEffect, useRef} from 'react';
 
 function App() {
-  const [count, setCount] = useState(0)
+
+ const ThreeScene: React.FC = () => {
+    const mountRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if(!mountRef.current) return;
+
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        if(mountRef.current){
+          mountRef.current.appendChild(renderer.domElement);
+        }
+
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(0, 0, 1).normalize();
+        scene.add(light);
+        renderer.render(scene, camera);
+        return () => {
+          renderer.dispose();
+        }
+    }, []);
+    return <div ref={mountRef} className="threejs-container" />;
+
+  }
+
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <> 
+      <main id="app">
+
+        <ThreeScene />        
+      </main>
     </>
   )
 }
